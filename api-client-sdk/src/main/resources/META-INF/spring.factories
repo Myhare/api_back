@@ -1,0 +1,3 @@
+# ∂¡»°≈‰÷√–≈œ¢
+# spring boot starter
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.ming.openApiClientSdk.OpenApiClientConfig

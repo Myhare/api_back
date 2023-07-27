@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ming.web.mapper.UserInterfaceInfoMapper">
+
+    <resultMap id="BaseResultMap" type="com.ming.apiCommon.model.entity.UserInterfaceInfo">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="userId" column="userId" jdbcType="BIGINT"/>
+            <result property="interfaceInfoId" column="interfaceInfoId" jdbcType="BIGINT"/>
+            <result property="totalNum" column="totalNum" jdbcType="INTEGER"/>
+            <result property="leftNum" column="leftNum" jdbcType="INTEGER"/>
+            <result property="status" column="status" jdbcType="INTEGER"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,userId,interfaceInfoId,
+        totalNum,leftNum,status,
+        createTime,updateTime,isDelete
+    </sql>
+    <select id="listTopInvokeInterfaceInfo" resultType="com.ming.apiCommon.model.entity.UserInterfaceInfo">
+        select interfaceInfoId, sum(totalNum) as totalNum from user_interface_info group by interfaceInfoId
+        order by totalNum desc limit #{limit};
+    </select>
+
+    <!--查询某个用户的所有接口信息-->
+    <select id="pageUserInterface" resultType="com.ming.web.model.vo.UserInterfaceVO">
+        select ui.interfaceInfoId, i.name, ui.totalNum, ui.leftNum
+        from user_interface_info ui
+                 inner join interface_info i on i.id = ui.interfaceInfoId
+        <where>
+            ui.userId = #{userId}
+        <if test="queryInfo.keyword != null">
+            and i.name like concat('%',#{queryInfo.keyword},'%')
+        </if>
+        </where>
+        group by interfaceInfoId;
+    </select>
+
+    <!--查询用户一共有多少接口-->
+    <select id="countUserInterface" resultType="java.lang.Integer">
+        select count(ui.id)
+        from user_interface_info ui
+        inner join interface_info i on i.id = ui.interfaceInfoId
+        <where>
+            ui.userId = #{userId}
+            <if test="queryInfo.keyword != null">
+                and i.name like concat('%',#{queryInfo.keyword},'%')
+            </if>
+        </where>
+    </select>
+</mapper>
