@@ -33,9 +33,6 @@ public class UserInterfaceController {
     // }
 
     /**
-     * 查看用户的接口信息
-     */
-    /**
      * 查看当前登录用户的接口列表
      */
     @GetMapping("/userInterface/list")
@@ -44,7 +41,7 @@ public class UserInterfaceController {
     }
 
     /**
-     * 添加登录用户某个接口的试用次数
+     * 添加登录用户某个接口的使用次数
      */
     @PostMapping("/userInterfaceAdd")
     public ResponseResult<?> userInterfaceAdd(@RequestBody AddInterfaceCountVO addInterfaceCountVO){

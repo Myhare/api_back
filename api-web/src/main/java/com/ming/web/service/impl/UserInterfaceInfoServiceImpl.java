@@ -10,6 +10,7 @@ import com.ming.apiCommon.model.enums.ResultCodeEnum;
 import com.ming.openApiClientSdk.utils.SignUtils;
 import com.ming.web.exception.BusinessException;
 import com.ming.web.mapper.UserInterfaceInfoMapper;
+import com.ming.web.model.enums.InterfaceCountStatusEnum;
 import com.ming.web.model.vo.*;
 import com.ming.web.service.UserInterfaceInfoService;
 import com.ming.web.service.UserService;
@@ -20,6 +21,8 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
+
+import static com.ming.web.model.enums.InterfaceCountStatusEnum.*;
 
 /**
  * @author 86135
@@ -76,10 +79,30 @@ public class UserInterfaceInfoServiceImpl extends ServiceImpl<UserInterfaceInfoM
     @Override
     public PageResult<UserInterfaceVO> pageUserInterface(QueryInfoVO queryInfoVO) {
         User loginUser = userService.getLoginUser();
-        // 获取用户调用的接口列表
-        List<UserInterfaceVO> userInterfaceVOList = userInterfaceInfoMapper.pageUserInterface(queryInfoVO, loginUser.getId());
+        List<UserInterfaceVO> userInterfaceVOList = null;
+        Integer interfaceCount = 0;
         // 查询一共有多少个接口
-        Integer interfaceCount = userInterfaceInfoMapper.countUserInterface(queryInfoVO, loginUser.getId());
+        switch (InterfaceCountStatusEnum.getEnumByText(queryInfoVO.getInterfaceCountStatus())) {
+            case ALL:
+                // 获取用户所有接口
+                userInterfaceVOList = userInterfaceInfoMapper.pageAllUserInterface(queryInfoVO, loginUser.getId());
+                interfaceCount = userInterfaceInfoMapper.countAllUserInterface(queryInfoVO, loginUser.getId());
+                break;
+            case HAVE:
+                // 获取用户已拥有接口
+                userInterfaceVOList = userInterfaceInfoMapper.pageHaveUserInterface(queryInfoVO, loginUser.getId());
+                interfaceCount = userInterfaceInfoMapper.countHaveUserInterface(queryInfoVO, loginUser.getId());
+                break;
+            case NO_HAVE:
+                // 获取用户已拥有接口
+                userInterfaceVOList = userInterfaceInfoMapper.pageNoHaveUserInterface(queryInfoVO, loginUser.getId());
+                interfaceCount = userInterfaceInfoMapper.countNoHaveUserInterface(queryInfoVO, loginUser.getId());
+                break;
+            default:
+                break;
+        }
+        // 获取用户调用的接口列表
+
         return new PageResult<>(userInterfaceVOList, interfaceCount);
     }
 

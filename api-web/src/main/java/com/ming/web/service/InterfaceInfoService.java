@@ -23,6 +23,13 @@ public interface InterfaceInfoService extends IService<InterfaceInfo> {
     public InterfaceInfoVO getInterfaceInfoVOById(Integer id);
 
     /**
+     * 管理员获取具体服务信息
+     * @param id 接口id
+     * @return   查询结果
+     */
+    public InterfaceInfoVO adminGetInterfaceInfoVOById(Integer id);
+
+    /**
      * 通过id删除接口
      */
     public Integer delInterfaceById(Integer id);

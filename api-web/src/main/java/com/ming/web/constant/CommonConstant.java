@@ -8,6 +8,11 @@ package com.ming.web.constant;
 public interface CommonConstant {
 
     /**
+     * 系统管理员用户id
+     */
+    Integer ADMIN_ID = 1;
+
+    /**
      * 盐值，混淆密码
      */
     String SALT = "ming";

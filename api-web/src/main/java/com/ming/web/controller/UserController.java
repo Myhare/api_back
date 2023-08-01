@@ -172,7 +172,6 @@ public class UserController {
     public ResponseResult<String> headFileUpload(@RequestBody MultipartFile multipartFile){
         return ResponseResult.ok(userService.headUpload(multipartFile));
     }
-
     // region 增删改查
 
     /**

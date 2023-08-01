@@ -15,6 +15,7 @@ import com.ming.web.service.InterfaceInfoService;
 import com.ming.web.service.UserService;
 import com.ming.web.utils.BeanCopyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -39,6 +40,10 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
     @Resource
     private InterfaceInfoMapper interfaceInfoMapper;
 
+    @Value("${web.backend}")
+    private String local;
+
+    // 普通用户查询接口信息，需要隐藏原接口地址
     @Override
     public InterfaceInfoVO getInterfaceInfoVOById(Integer id) {
         if (id <= 0){
@@ -52,7 +57,31 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
         List<RequestExplainVO> requestExplainVOList = JSONUtil.toList(interfaceInfo.getRequestExplain(), RequestExplainVO.class);
         List<ResponseExplainVO> responseExplainVOList = JSONUtil.toList(interfaceInfo.getResponseExplain(), ResponseExplainVO.class);
         InterfaceInfoVO interfaceInfoVO = BeanCopyUtils.copyObject(interfaceInfo, InterfaceInfoVO.class);
-        // TODO 将host变成当前服务器的地址，原地址不能发送出去
+        // 当前服务器的地址，原服务器的地址不能暴露出去
+        interfaceInfoVO.setHost(local);
+        // TODO 这里同意使用一个接口获取数据，前端用户只需要出入接口id和传入参数实现动态转发
+        interfaceInfoVO.setUrl("/invoke");
+        interfaceInfoVO.setMethod("POST");
+        interfaceInfoVO.setRequestExplain(requestExplainVOList);
+        interfaceInfoVO.setResponseExplain(responseExplainVOList);
+        return interfaceInfoVO;
+    }
+
+    // 查询接口真实信息
+    @Override
+    public InterfaceInfoVO adminGetInterfaceInfoVOById(Integer id) {
+        if (id <= 0){
+            throw new BusinessException(ResultCodeEnum.PARAMS_ERROR);
+        }
+        InterfaceInfo interfaceInfo = interfaceInfoMapper.selectById(id);
+        if (Objects.isNull(interfaceInfo)){
+            throw new BusinessException(ResultCodeEnum.NOT_FOUND_ERROR);
+        }
+        // 将JSON数组转换成数组封装
+        List<RequestExplainVO> requestExplainVOList = JSONUtil.toList(interfaceInfo.getRequestExplain(), RequestExplainVO.class);
+        List<ResponseExplainVO> responseExplainVOList = JSONUtil.toList(interfaceInfo.getResponseExplain(), ResponseExplainVO.class);
+        InterfaceInfoVO interfaceInfoVO = BeanCopyUtils.copyObject(interfaceInfo, InterfaceInfoVO.class);
+        // 当前服务器的地址，原服务器的地址不能暴露出去
         interfaceInfoVO.setRequestExplain(requestExplainVOList);
         interfaceInfoVO.setResponseExplain(responseExplainVOList);
         return interfaceInfoVO;

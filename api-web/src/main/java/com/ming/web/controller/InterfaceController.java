@@ -108,6 +108,12 @@ public class InterfaceController {
         return ResponseResult.ok(interfaceInfoService.getInterfaceInfoVOById(id));
     }
 
+    // 管理员获取接口真实信息
+    @GetMapping("/adminGetInvokeInterface")
+    public ResponseResult<InterfaceInfoVO> adminGetInvokeInterface(Integer id){
+        return ResponseResult.ok(interfaceInfoService.adminGetInterfaceInfoVOById(id));
+    }
+
     /**
      * 获取接口列表
      */

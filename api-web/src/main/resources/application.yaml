@@ -70,9 +70,13 @@ spring:
         password: nacos
         namespace: public
 
-# 当前服务器地址,用于告知前端发送地址
 web:
-  local: http://localhost:8080/
+  # 前端地址，用于邮件通知
+  front: http://localhost:3000/
+  # 当前服务器地址,用于告知前端发送地址
+  backend: http://localhost:8080/
+  # SDk的绝对路径
+  sdkPath: F:\Java_IDEA练习\apiOpen\apiOpen-backend\api-web\lib\api-client-sdk-0.0.1.jar
 
 mybatis-plus:
   configuration:

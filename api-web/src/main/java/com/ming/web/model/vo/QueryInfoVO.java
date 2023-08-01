@@ -16,13 +16,13 @@ public class QueryInfoVO {
     /**
      * 查询当前的页数
      */
-    @ApiModelProperty(name = "keywords", value = "查询页数", dataType = "String")
+    @ApiModelProperty(name = "current", value = "查询页数", dataType = "String")
     private int current;
 
     /**
      * 查询的数量
      */
-    @ApiModelProperty(name = "keywords", value = "属性个数", dataType = "String")
+    @ApiModelProperty(name = "pageSize", value = "属性个数", dataType = "String")
     private int pageSize;
 
     /**
@@ -30,6 +30,12 @@ public class QueryInfoVO {
      */
     @ApiModelProperty(name = "keywords", value = "搜索内容", dataType = "String")
     private String keyword;
+
+    /**
+     * 接口次数状态
+     */
+    @ApiModelProperty(name = "status", value = "接口次数状态")
+    private String interfaceCountStatus;
 
     /**
      * 获取分页的信息

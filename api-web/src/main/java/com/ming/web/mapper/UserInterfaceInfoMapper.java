@@ -18,11 +18,22 @@ import java.util.List;
 public interface UserInterfaceInfoMapper extends BaseMapper<UserInterfaceInfo> {
 
     /**
-     * 查询登录用户的接口信息
+     * 查询登录用户的所有接口信息
      * @param queryInfoVO 返回接口信息
      */
-    List<UserInterfaceVO> pageUserInterface(@Param("queryInfo") QueryInfoVO queryInfoVO, @Param("userId") Long userId);
+    List<UserInterfaceVO> pageAllUserInterface(@Param("queryInfo") QueryInfoVO queryInfoVO, @Param("userId") Long userId);
 
+    /**
+     * 查询登录用户已拥有的接口信息
+     * @param queryInfoVO 返回接口信息
+     */
+    List<UserInterfaceVO> pageHaveUserInterface(@Param("queryInfo") QueryInfoVO queryInfoVO, @Param("userId") Long userId);
+
+    /**
+     * 查询登录用户调用次数为空的接口
+     * @param queryInfoVO 返回接口信息
+     */
+    List<UserInterfaceVO> pageNoHaveUserInterface(@Param("queryInfo") QueryInfoVO queryInfoVO, @Param("userId") Long userId);
 
     /**
      * 查询用户一共有多少接口
@@ -30,7 +41,24 @@ public interface UserInterfaceInfoMapper extends BaseMapper<UserInterfaceInfo> {
      * @param userId
      * @return
      */
-    Integer countUserInterface(@Param("queryInfo") QueryInfoVO queryInfoVO, @Param("userId") Long userId);
+    Integer countAllUserInterface(@Param("queryInfo") QueryInfoVO queryInfoVO, @Param("userId") Long userId);
+
+    /**
+     * 查询用户一共还有多少接口可以调用
+     * @param queryInfoVO
+     * @param userId
+     * @return
+     */
+    Integer countHaveUserInterface(@Param("queryInfo") QueryInfoVO queryInfoVO, @Param("userId") Long userId);
+
+    /**
+     * 查询用户调用完次数的接口有多少个
+     * @param queryInfoVO
+     * @param userId
+     * @return
+     */
+    Integer countNoHaveUserInterface(@Param("queryInfo") QueryInfoVO queryInfoVO, @Param("userId") Long userId);
+
 }
 
 

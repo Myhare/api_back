@@ -27,12 +27,13 @@
     </select>
 
     <!--查询某个用户的所有接口信息-->
-    <select id="pageUserInterface" resultType="com.ming.web.model.vo.UserInterfaceVO">
+    <select id="pageAllUserInterface" resultType="com.ming.web.model.vo.UserInterfaceVO">
         select ui.interfaceInfoId, i.name, ui.totalNum, ui.leftNum
         from user_interface_info ui
                  inner join interface_info i on i.id = ui.interfaceInfoId
         <where>
-            ui.userId = #{userId}
+            i.isDelete = 0
+            and ui.userId = #{userId}
         <if test="queryInfo.keyword != null">
             and i.name like concat('%',#{queryInfo.keyword},'%')
         </if>
@@ -41,12 +42,75 @@
     </select>
 
     <!--查询用户一共有多少接口-->
-    <select id="countUserInterface" resultType="java.lang.Integer">
+    <select id="countAllUserInterface" resultType="java.lang.Integer">
         select count(ui.id)
         from user_interface_info ui
         inner join interface_info i on i.id = ui.interfaceInfoId
         <where>
-            ui.userId = #{userId}
+            i.isDelete = 0
+            and ui.userId = #{userId}
+            <if test="queryInfo.keyword != null">
+                and i.name like concat('%',#{queryInfo.keyword},'%')
+            </if>
+        </where>
+    </select>
+
+    <!--获取用户已拥有的接口信息-->
+    <select id="pageHaveUserInterface" resultType="com.ming.web.model.vo.UserInterfaceVO">
+        select ui.interfaceInfoId, i.name, ui.totalNum, ui.leftNum
+        from user_interface_info ui
+        inner join interface_info i on i.id = ui.interfaceInfoId
+        <where>
+            i.isDelete = 0
+            and ui.userId = #{userId}
+            and ui.leftNum > 0
+            <if test="queryInfo.keyword != null">
+                and i.name like concat('%',#{queryInfo.keyword},'%')
+            </if>
+        </where>
+        group by interfaceInfoId;
+    </select>
+
+    <!--查询用户还可以调用接口的次数-->
+    <select id="countHaveUserInterface" resultType="java.lang.Integer">
+        select count(ui.id)
+        from user_interface_info ui
+        inner join interface_info i on i.id = ui.interfaceInfoId
+        <where>
+            i.isDelete = 0
+            and ui.userId = #{userId}
+            and ui.leftNum > 0
+            <if test="queryInfo.keyword != null">
+                and i.name like concat('%',#{queryInfo.keyword},'%')
+            </if>
+        </where>
+    </select>
+
+    <!--查询用户调用次数为空的接口-->
+    <select id="pageNoHaveUserInterface" resultType="com.ming.web.model.vo.UserInterfaceVO">
+        select ui.interfaceInfoId, i.name, ui.totalNum, ui.leftNum
+        from user_interface_info ui
+        inner join interface_info i on i.id = ui.interfaceInfoId
+        <where>
+            i.isDelete = 0
+            and ui.userId = #{userId}
+            and ui.leftNum &lt; 1
+            <if test="queryInfo.keyword != null">
+                and i.name like concat('%',#{queryInfo.keyword},'%')
+            </if>
+        </where>
+        group by interfaceInfoId;
+    </select>
+
+    <!--查询用户调用完次数的接口有多少个-->
+    <select id="countNoHaveUserInterface" resultType="java.lang.Integer">
+        select count(ui.id)
+        from user_interface_info ui
+        inner join interface_info i on i.id = ui.interfaceInfoId
+        <where>
+            i.isDelete = 0
+            and ui.userId = #{userId}
+            and ui.leftNum &lt; 1
             <if test="queryInfo.keyword != null">
                 and i.name like concat('%',#{queryInfo.keyword},'%')
             </if>
