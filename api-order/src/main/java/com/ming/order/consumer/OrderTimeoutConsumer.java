@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * 订单超时死信队列
@@ -39,6 +40,11 @@ public class OrderTimeoutConsumer {
     public void orderTimeout(Order tOrder, Message message, Channel channel) throws IOException {
         // 获取最新的订单状态
         Order order = orderService.getById(tOrder.getId());
+        if (Objects.isNull(order)){
+            // 说明用户把订单取消了，直接返回
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false); // false表示只确认当前一条消息
+            return;
+        }
         // 订单已支付，直接返回ack消息
         if (order.getStatus().equals(OrderStatusEnum.PAYED.getValue())){
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false); // false表示只确认当前一条消息

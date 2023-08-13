@@ -2,9 +2,11 @@ package com.ming.order.controller;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.ming.apiCommon.dubbo.ApiBackendService;
+import com.ming.apiCommon.model.enums.ResultCodeEnum;
 import com.ming.apiCommon.model.vo.PageResult;
 import com.ming.apiCommon.model.vo.ResponseResult;
 import com.ming.order.enums.OrderStatusEnum;
+import com.ming.order.exception.BusinessException;
 import com.ming.order.pojo.Order;
 import com.ming.order.service.OrderService;
 import com.ming.order.vo.IdVO;
@@ -54,6 +56,15 @@ public class OrderController {
     @PostMapping("/orderPay")
     public ResponseResult<String> orderPay(@RequestBody IdVO idVO){
         orderService.addInvokeCount(idVO);
+        return ResponseResult.ok();
+    }
+
+    /**
+     * 删除订单
+     */
+    @PostMapping("/delete")
+    public ResponseResult<String> delOrder(@RequestBody IdVO idVO){
+        orderService.delOrder(idVO.getId());
         return ResponseResult.ok();
     }
 }
