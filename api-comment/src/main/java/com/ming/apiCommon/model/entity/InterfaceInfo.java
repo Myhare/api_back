@@ -1,7 +1,10 @@
 package com.ming.apiCommon.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -12,6 +15,9 @@ import java.util.Date;
  */
 @TableName(value ="interface_info")
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class InterfaceInfo implements Serializable {
     /**
      * 主键

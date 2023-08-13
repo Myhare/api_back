@@ -1,4 +1,4 @@
-package com.ming.web.utils;
+package com.ming.apiCommon.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;

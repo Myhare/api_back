@@ -2,27 +2,27 @@ package com.ming.web.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.ming.apiCommon.model.entity.InterfaceInfo;
 import com.ming.apiCommon.model.entity.User;
 import com.ming.apiCommon.model.entity.UserInterfaceInfo;
 import com.ming.apiCommon.model.enums.ResultCodeEnum;
-import com.ming.openApiClientSdk.utils.SignUtils;
+import com.ming.apiCommon.utils.CommonUtil;
 import com.ming.web.exception.BusinessException;
+import com.ming.web.mapper.InterfaceChargingMapper;
 import com.ming.web.mapper.UserInterfaceInfoMapper;
+import com.ming.web.model.entity.InterfaceCharging;
 import com.ming.web.model.enums.InterfaceCountStatusEnum;
 import com.ming.web.model.vo.*;
 import com.ming.web.service.UserInterfaceInfoService;
 import com.ming.web.service.UserService;
-import com.ming.web.utils.CommonUtils;
 import com.ming.web.utils.EncryptionUtils;
+import io.swagger.models.auth.In;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
-
-import static com.ming.web.model.enums.InterfaceCountStatusEnum.*;
 
 /**
  * @author 86135
@@ -35,6 +35,9 @@ public class UserInterfaceInfoServiceImpl extends ServiceImpl<UserInterfaceInfoM
 
     @Resource
     private UserInterfaceInfoMapper userInterfaceInfoMapper;
+
+    @Resource
+    private InterfaceChargingMapper interfaceChargingMapper;
 
     @Resource
     private UserService userService;
@@ -108,22 +111,24 @@ public class UserInterfaceInfoServiceImpl extends ServiceImpl<UserInterfaceInfoM
 
     // 添加当前登录用户的接口调用次数
     @Override
-    public void addInterfaceCount(AddInterfaceCountVO addInterfaceCountVO) {
-        // 校验参数
-        String addCountStr = addInterfaceCountVO.getAddCount();
+    public void freeInterfaceCount(AddInterfaceCountVO addInterfaceCountVO) {
+        Integer addCount = addInterfaceCountVO.getAddCount();
         Long interfaceId = addInterfaceCountVO.getInterfaceId();
-        Integer addCount = 0;
-        try {
-            addCount = Integer.parseInt(addCountStr);
-        } catch (NumberFormatException e) {
-            throw new BusinessException(ResultCodeEnum.PARAMS_ERROR, "添加次数需要为整数");
+        // 校验参数
+        if (addCount <= 0){
+            throw new BusinessException(ResultCodeEnum.PARAMS_ERROR);
         }
+
+        // 判断接口的价格是不是免费的
+        InterfaceCharging interfaceCharging = interfaceChargingMapper.selectOne(new LambdaQueryWrapper<InterfaceCharging>()
+                .eq(InterfaceCharging::getInterfaceId, interfaceId)
+        );
+        if (interfaceCharging != null && interfaceCharging.getCharging() != 0){
+            throw new BusinessException(ResultCodeEnum.PARAMS_ERROR, "接口需要收费");
+        }
+
         // 获取登录用户
         User loginUser = userService.getLoginUser();
-        // 校验用户输入的密码和当前用户的密码是不是同一个
-        if (!loginUser.getUserPassword().equals(EncryptionUtils.md5SaleEncryptString(addInterfaceCountVO.getUserPassword()))){
-            throw new BusinessException(ResultCodeEnum.PARAMS_ERROR, "密码错误");
-        }
         // 查询当前用户是否有这个接口的调用次数
         UserInterfaceInfo userInterfaceInfo = userInterfaceInfoMapper.selectOne(new LambdaQueryWrapper<UserInterfaceInfo>()
                 .eq(UserInterfaceInfo::getUserId, loginUser.getId())
@@ -140,14 +145,14 @@ public class UserInterfaceInfoServiceImpl extends ServiceImpl<UserInterfaceInfoM
         }else {
             // 在原来的数据上进行添加次数
             // 获取剩余调用次数
-            Integer leftNum = userInterfaceInfo.getLeftNum();
-            leftNum += addCount;
-            userInterfaceInfo.setLeftNum(leftNum);
-            userInterfaceInfoMapper.updateById(userInterfaceInfo);
+            userInterfaceInfoMapper.update(userInterfaceInfo, new LambdaUpdateWrapper<UserInterfaceInfo>()
+                            .eq(UserInterfaceInfo::getId, userInterfaceInfo.getId())
+                    .setSql("leftNum = leftNum + " + addCount)
+            );
         }
     }
-}
 
+}
 
 
 

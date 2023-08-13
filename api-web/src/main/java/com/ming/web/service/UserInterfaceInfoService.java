@@ -40,5 +40,5 @@ public interface UserInterfaceInfoService extends IService<UserInterfaceInfo> {
      * 添加当前登录用户的接口调用次数
      * @param addInterfaceCountVO
      */
-    void addInterfaceCount(AddInterfaceCountVO addInterfaceCountVO);
+    void freeInterfaceCount(AddInterfaceCountVO addInterfaceCountVO);
 }

@@ -1,4 +1,4 @@
-package com.ming.gateway.config;
+package com.ming.gateway.filter;
 
 import com.ming.apiCommon.dubbo.InnerInterfaceInfoService;
 import com.ming.apiCommon.model.entity.InterfaceInfo;
@@ -48,11 +48,6 @@ public class BizLogicRouteGatewayFilterFactory extends AbstractGatewayFilterFact
             log.info("BizLogicRouteGatewayFilterFactory请求来源地址：" + sourceAddress);
             log.info("BizLogicRouteGatewayFilterFactory请求来源地址：" + request.getRemoteAddress());
 
-            // 调用方请求时的path
-            String rawPath = request.getURI().getRawPath();
-
-            log.info("原请求路径 [{}]", rawPath);
-
             // 请求头
             HttpHeaders headers = request.getHeaders();
             // 从请求头中获取接口id，查询接口详细信息之后转发到对应的服务器
@@ -66,6 +61,10 @@ public class BizLogicRouteGatewayFilterFactory extends AbstractGatewayFilterFact
             // 获取接口信息
             // 判断接口是否存在，还有请求方式是否匹配
             String path = request.getPath().value();
+            log.info("原请求路径 [{}]", path);
+            // 清除接口的前面的/api/interface
+            path = path.substring("/api/interface".length());
+
             InterfaceInfo interfaceInfo = null;
             try {
                 interfaceInfo = innerInterfaceInfoService.getInterfaceInfo(path, method);
@@ -76,7 +75,7 @@ public class BizLogicRouteGatewayFilterFactory extends AbstractGatewayFilterFact
 
             // URI uri;
             // 通过接口信息设置响应地址
-            URI uri = UriComponentsBuilder.fromHttpUrl(interfaceInfo.getHost() + rawPath).queryParams(queryParams).build().toUri();
+            URI uri = UriComponentsBuilder.fromHttpUrl(interfaceInfo.getHost() + path).queryParams(queryParams).build().toUri();
             // 生成新的Request对象，该对象放弃了常规路由配置中的spring.cloud.gateway.routes.uri字段
             ServerHttpRequest serverHttpRequest = request.mutate().uri(uri).method(httpMethod).headers(httpHeaders -> httpHeaders = httpHeaders).build();
 

@@ -1,10 +1,11 @@
 package com.ming.gateway.filter;
 
-import cn.hutool.json.JSONUtil;
+import com.ming.apiCommon.constant.RedisPrefixConst;
 import com.ming.apiCommon.constant.RequestHeaderConstant;
 import com.ming.apiCommon.dubbo.InnerInterfaceInfoService;
 import com.ming.apiCommon.dubbo.InnerUserInterfaceService;
 import com.ming.apiCommon.dubbo.InnerUserService;
+import com.ming.apiCommon.dubbo.RedisService;
 import com.ming.apiCommon.model.entity.InterfaceInfo;
 import com.ming.apiCommon.model.entity.User;
 import com.ming.apiCommon.model.entity.UserInterfaceInfo;
@@ -12,6 +13,7 @@ import com.ming.openApiClientSdk.utils.SignUtils;
 import lombok.extern.log4j.Log4j2;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.reactivestreams.Publisher;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -32,7 +34,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import static com.ming.apiCommon.constant.RequestMethodConstant.*;
 
 /**
  * 接口全局过滤器
@@ -40,6 +41,11 @@ import static com.ming.apiCommon.constant.RequestMethodConstant.*;
 @Log4j2
 @Component
 public class InterfaceGlobalFilter implements GlobalFilter, Ordered {
+
+    /**
+     * 网关前缀
+     */
+    private String prefixStr = "/api/interface/";
 
 
     @DubboReference
@@ -51,6 +57,9 @@ public class InterfaceGlobalFilter implements GlobalFilter, Ordered {
     @DubboReference
     private InnerInterfaceInfoService innerInterfaceInfoService;
 
+    @DubboReference
+    private RedisService redisService;
+
     /**
      * 白名单临时测试列表
      */
@@ -59,6 +68,16 @@ public class InterfaceGlobalFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
+
+        // 判断接口是否存在，还有请求方式是否匹配
+        String path = request.getPath().value();
+        // 判断是不是调用接口请求，如果不是，直接放行交给后面的过滤器
+        if (!path.contains(prefixStr)){
+            return chain.filter(exchange);
+        }
+        // 清除接口的前面的/api/interface
+        path = path.substring(prefixStr.length() - 1);
+
         ServerHttpResponse response = exchange.getResponse();
         // 获取请求方法
         String method = request.getMethod().toString();
@@ -111,8 +130,6 @@ public class InterfaceGlobalFilter implements GlobalFilter, Ordered {
             return handleNoAuth(response, "请求超时");
         }
 
-        // 判断接口是否存在，还有请求方式是否匹配
-        String path = request.getPath().value();
         // 通过请求方法获取请求接口实体
         InterfaceInfo interfaceInfo = null;
         try {
@@ -128,6 +145,9 @@ public class InterfaceGlobalFilter implements GlobalFilter, Ordered {
         if (userInterface == null || userInterface.getLeftNum() <= 0){
             return handleNoAuth(response, "接口调用次数不足");
         }
+
+        String forwardedPath = exchange.getRequest().getURI().toString();
+        System.out.println("转发后的完整路径：" + forwardedPath);
 
         // 放行
         return handleResponse(exchange, chain, interfaceInfo.getId(), user.getId());
@@ -173,6 +193,8 @@ public class InterfaceGlobalFilter implements GlobalFilter, Ordered {
                                         } catch (Exception e) {
                                             log.error("invokeCount error", e);
                                         }
+                                        // 更新统计信息
+                                        updateInvokeCount();
                                         byte[] content = new byte[dataBuffer.readableByteCount()];
                                         dataBuffer.read(content);
                                         DataBufferUtils.release(dataBuffer);//释放掉内存
@@ -210,6 +232,14 @@ public class InterfaceGlobalFilter implements GlobalFilter, Ordered {
         response.setStatusCode(HttpStatus.FORBIDDEN);
         DataBuffer dataBuffer = response.bufferFactory().wrap(message.getBytes(StandardCharsets.UTF_8));
         return response.writeWith(Mono.just(dataBuffer));
+    }
+
+    /**
+     * 更新当天的统计信息
+     */
+    private void updateInvokeCount(){
+        // 接口调用次数自增
+        redisService.incr(RedisPrefixConst.INVOKE_DATE_COUNT, 1L);
     }
 
 }

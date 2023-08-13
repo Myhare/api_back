@@ -1,5 +1,6 @@
 package com.ming.web.config;
 
+import com.ming.web.Interceptor.PageableHandlerInterceptor;
 import com.ming.web.Interceptor.TokenHandlerInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -25,5 +26,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new TokenHandlerInterceptor());  // 添加Token拦截器
+        registry.addInterceptor(new PageableHandlerInterceptor()); // 添加分页拦截器
     }
 }

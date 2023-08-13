@@ -41,11 +41,11 @@ public class UserInterfaceController {
     }
 
     /**
-     * 添加登录用户某个接口的使用次数
+     * 用户免费获取接口
      */
-    @PostMapping("/userInterfaceAdd")
+    @PostMapping("/userInterface/free")
     public ResponseResult<?> userInterfaceAdd(@RequestBody AddInterfaceCountVO addInterfaceCountVO){
-        userInterfaceInfoService.addInterfaceCount(addInterfaceCountVO);
+        userInterfaceInfoService.freeInterfaceCount(addInterfaceCountVO);
         return ResponseResult.ok();
     }
 

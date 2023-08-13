@@ -21,8 +21,11 @@
         totalNum,leftNum,status,
         createTime,updateTime,isDelete
     </sql>
+
+    <!--查询前几的接口总调用次数-->
     <select id="listTopInvokeInterfaceInfo" resultType="com.ming.apiCommon.model.entity.UserInterfaceInfo">
-        select interfaceInfoId, sum(totalNum) as totalNum from user_interface_info group by interfaceInfoId
+        select interfaceInfoId, sum(totalNum) as totalNum from user_interface_info
+        group by interfaceInfoId
         order by totalNum desc limit #{limit};
     </select>
 
@@ -115,5 +118,12 @@
                 and i.name like concat('%',#{queryInfo.keyword},'%')
             </if>
         </where>
+    </select>
+
+    <!--查询调用次数前5的用户数量-->
+    <select id="listTopUserInvokeCount" resultType="com.ming.apiCommon.model.entity.UserInterfaceInfo">
+        select userId, sum(totalNum) as totalNum from user_interface_info
+        group by userId
+        order by totalNum desc limit #{limit};
     </select>
 </mapper>

@@ -1,4 +1,4 @@
-package com.ming.web.constant;
+package com.ming.apiCommon.constant;
 
 /**
  * redis前缀点赞
@@ -18,4 +18,8 @@ public interface RedisPrefixConst {
      */
     String API_REGISTER_CODE = "api_register_code:";
 
+    /**
+     * 接口最近7天调用次数
+     */
+    String INVOKE_DATE_COUNT = "invoke_data_count";
 }

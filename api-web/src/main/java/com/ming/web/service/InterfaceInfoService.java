@@ -3,10 +3,7 @@ package com.ming.web.service;
 import cn.hutool.http.HttpResponse;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.ming.apiCommon.model.entity.InterfaceInfo;
-import com.ming.web.model.vo.InterfaceInfoVO;
-import com.ming.web.model.vo.PageResult;
-import com.ming.web.model.vo.QueryInfoVO;
-import com.ming.web.model.vo.UserInterfaceVO;
+import com.ming.web.model.vo.*;
 
 /**
 * @author 86135
@@ -46,5 +43,4 @@ public interface InterfaceInfoService extends IService<InterfaceInfo> {
      * @param interfaceInfo
      */
     public void checkInterfaceInvoke(InterfaceInfo interfaceInfo);
-
 }

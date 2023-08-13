@@ -1,34 +1,40 @@
 package com.ming.web.service.impl;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpStatus;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.ming.apiCommon.constant.RedisPrefixConst;
 import com.ming.apiCommon.model.entity.InterfaceInfo;
 import com.ming.apiCommon.model.entity.User;
 import com.ming.apiCommon.model.enums.ResultCodeEnum;
+import com.ming.apiCommon.utils.CommonUtil;
 import com.ming.openApiClientSdk.client.OpenApiClient;
 import com.ming.web.exception.BusinessException;
+import com.ming.web.mapper.InterfaceChargingMapper;
 import com.ming.web.mapper.InterfaceInfoMapper;
+import com.ming.web.mapper.InvokeCountMapper;
+import com.ming.web.model.entity.InterfaceCharging;
+import com.ming.web.model.entity.InvokeCount;
 import com.ming.web.model.vo.*;
 import com.ming.web.service.InterfaceInfoService;
+import com.ming.apiCommon.dubbo.RedisService;
 import com.ming.web.service.UserService;
 import com.ming.web.utils.BeanCopyUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.annotation.Resource;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
-* @author 86135
-* @description 针对表【interface_info(接口信息)】的数据库操作Service实现
-* @createDate 2023-06-25 14:51:54
+ * 接口服务
+* @author Ming
 */
 @Service
 public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, InterfaceInfo>
@@ -39,6 +45,15 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
 
     @Resource
     private InterfaceInfoMapper interfaceInfoMapper;
+
+    @Resource
+    private InvokeCountMapper invokeCountMapper;
+
+    @Resource
+    private InterfaceChargingMapper interfaceChargingMapper;
+
+    @Resource
+    private RedisService redisService;
 
     @Value("${web.backend}")
     private String local;
@@ -117,6 +132,24 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
             throw new BusinessException(ResultCodeEnum.SYSTEM_ERROR, "接口验证失败，接口请求出现问题");
         }
     }
+
+    /**
+     * 每天获取一次接口调用次数存到数据库中
+     * 每天执行一次
+     */
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void saveUniqueView(){
+        Object invokeCountObject = redisService.get(RedisPrefixConst.INVOKE_DATE_COUNT);
+        String invokeCountStr = Optional.ofNullable(invokeCountObject).orElse(0).toString();
+
+        // 将当天的接口调用次数存到数据库中
+        InvokeCount invokeCount = InvokeCount.builder()
+                .createTime(DateUtil.yesterday())
+                .invokeCount(invokeCountStr)
+                .build();
+        invokeCountMapper.insert(invokeCount);
+    }
+
 }
 
 

@@ -25,4 +25,9 @@ public class RequestHeaderConstant {
      */
     public static final String SIGN = "sign";
 
+    /**
+     * 请求头token的key
+     */
+    public static final String TOKEN_HEADER = "token";
+
 }

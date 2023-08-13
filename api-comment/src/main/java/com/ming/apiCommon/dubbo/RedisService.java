@@ -1,4 +1,4 @@
-package com.ming.web.service;
+package com.ming.apiCommon.dubbo;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.Distance;

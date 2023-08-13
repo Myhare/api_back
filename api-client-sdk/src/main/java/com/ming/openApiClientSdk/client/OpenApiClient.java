@@ -19,7 +19,7 @@ public class OpenApiClient {
     /**
      * 网关地址
      */
-    private static final String GATEWAY_HOST = "http://localhost:8000";
+    private static final String GATEWAY_HOST = "http://localhost:8000/api/interface";
 
     private String accessKey;
 

@@ -59,6 +59,18 @@ public interface UserInterfaceInfoMapper extends BaseMapper<UserInterfaceInfo> {
      */
     Integer countNoHaveUserInterface(@Param("queryInfo") QueryInfoVO queryInfoVO, @Param("userId") Long userId);
 
+    /**
+     * 查询前几的数量
+     * @param limit
+     * @return
+     */
+    List<UserInterfaceInfo> listTopInvokeInterfaceInfo(int limit);
+
+    /**
+     * 查询调用接口次数前5的用户数量
+     */
+    List<UserInterfaceInfo> listTopUserInvokeCount(int limit);
+
 }
 
 

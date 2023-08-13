@@ -1,7 +1,8 @@
 package com.ming.web.service.impl;
 
 
-import com.ming.web.service.RedisService;
+import com.ming.apiCommon.dubbo.RedisService;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.GeoResults;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
  * redis操作
  **/
 @Service
+@DubboService
 public class RedisServiceImpl implements RedisService {
     @Resource
     private RedisTemplate<String, Object> redisTemplate;

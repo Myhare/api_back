@@ -2,13 +2,15 @@ package com.ming.web.service.impl;
 
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.digest.DigestUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ming.apiCommon.model.entity.User;
 import com.ming.apiCommon.model.enums.ResultCodeEnum;
+import com.ming.apiCommon.utils.JwtUtil;
 import com.ming.web.constant.MQPrefixConst;
-import com.ming.web.constant.RedisPrefixConst;
+import com.ming.apiCommon.constant.RedisPrefixConst;
 import com.ming.web.exception.BusinessException;
 import com.ming.web.mapper.InUserRoleMapper;
 import com.ming.web.mapper.RoleMapper;
@@ -20,7 +22,7 @@ import com.ming.web.model.enums.RoleEnum;
 import com.ming.web.model.enums.UploadPathEnum;
 import com.ming.web.model.vo.LoginUserInfoVO;
 import com.ming.web.model.vo.UserVO;
-import com.ming.web.service.RedisService;
+import com.ming.apiCommon.dubbo.RedisService;
 import com.ming.web.service.UserService;
 import com.ming.web.strategy.context.UploadStrategyContext;
 import com.ming.web.utils.*;
@@ -39,7 +41,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.ming.web.constant.CommonConstant.SALT;
-import static com.ming.web.constant.RedisPrefixConst.API_REGISTER_CODE;
+import static com.ming.apiCommon.constant.RedisPrefixConst.API_REGISTER_CODE;
 
 /**
 * @author 86135
@@ -182,7 +184,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         // 获取用户权限列表
         List<String> roleList = userMapper.getRoleList(user.getId());
         // 登录成功，生成JWT存入redis,记录用户的登录态
-        String token = JwtUtil.createJWT(userVO.getId().toString(), LOGIN_VALID_TIME * 1000L);
+        String token = JwtUtil.createJWT(JSONUtil.toJsonStr(userVO), LOGIN_VALID_TIME * 1000L);
         // 3. 记录用户的登录态
         redisService.set(RedisPrefixConst.LOGIN_USER_ID + userVO.getId(), token, LOGIN_VALID_TIME); // 存3个小时token
         // request.getSession().setAttribute(USER_LOGIN_STATE, userVO);
@@ -198,26 +200,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public UserVO getLoginUserVO() {
         // 先判断是否已登录
         String token = TokenUtils.getToken();
-        Long userId = getUserIdByToken(token);
-        // 从redis中判断是否登录
-        if (Objects.isNull(redisService.get(RedisPrefixConst.LOGIN_USER_ID + userId))){
-            // 未登录
+        UserVO userVO = getUserVOByToken(token);
+        if (userVO == null){
             throw new BusinessException(ResultCodeEnum.NOT_LOGIN_ERROR);
         }
-        // 用户登录中，通过id查询用户
-        // TODO 可以看看能不能将用户信息放到缓存中
-        User loginUser = this.getById(userId);
-        if (loginUser == null) {
-            throw new BusinessException(ResultCodeEnum.NOT_LOGIN_ERROR);
-        }
-        return BeanCopyUtils.copyObject(loginUser, UserVO.class);
+        return userVO;
     }
 
     @Override
     public User getLoginUser() {
         String token = TokenUtils.getToken();
-        Long userId = getUserIdByToken(token);
-        return this.getById(userId);
+        UserVO userVO = getUserVOByToken(token);
+        return this.getById(userVO.getId());
     }
 
     /**
@@ -229,9 +223,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (StringUtils.isBlank(token)) {
             throw new BusinessException(ResultCodeEnum.PARAMS_ERROR);
         }
-        Long userId = getUserIdByToken(token);
+        UserVO userVO = getUserVOByToken(token);
         // 从redis中清除用户
-        redisService.del(RedisPrefixConst.LOGIN_USER_ID + userId);
+        redisService.del(RedisPrefixConst.LOGIN_USER_ID + userVO.getId());
         return true;
     }
 
@@ -244,19 +238,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     /**
      * 通过token获取登录用户
      */
-    private Long getUserIdByToken(String token){
+    private UserVO getUserVOByToken(String token){
         if (StringUtils.isBlank(token)) {
             throw new BusinessException(ResultCodeEnum.NOT_LOGIN_ERROR);
         }
-        Long userId = null;
+        UserVO userVO = null;
         try {
             Claims claims = JwtUtil.parseJWT(token);
-            userId = Long.valueOf(claims.getSubject());
+            System.out.println(claims.getSubject());
+            userVO = JSONUtil.toBean(claims.getSubject(), UserVO.class);
         } catch (Exception e) {
             e.printStackTrace();
             throw new BusinessException(ResultCodeEnum.PARAMS_ERROR,"token非法");
         }
-        return userId;
+        return userVO;
     }
 
     /**

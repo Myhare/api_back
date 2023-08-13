@@ -69,6 +69,27 @@ spring:
         username: nacos
         password: nacos
         namespace: public
+    alibaba:
+      seata:
+        tx-service-group: beiJing #配置事务分组
+seata:
+  registry:
+    # 配置seata的注册中心， 告诉seata client 怎么去访问seata server(TC)
+    type: nacos
+    nacos:
+      server-addr: 127.0.0.1:8848  # seata server 所在的nacos服务地址
+      application: seata-server    # seata server 的服务名seata-server ，如果没有修改可以不配
+      username: nacos
+      password: nacos
+      group: SEATA_GROUP          # seata server 所在的组，默认就是SEATA_GROUP，没有改也可以不配
+  # 读取nacos中的配置
+  config:
+    type: nacos
+    nacos:
+      server-addr: 127.0.0.1:8848
+      username: nacos
+      password: nacos
+      group: SEATA_GROUP
 
 web:
   # 前端地址，用于邮件通知

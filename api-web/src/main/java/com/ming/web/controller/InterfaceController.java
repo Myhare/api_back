@@ -18,15 +18,12 @@ import com.ming.apiCommon.model.vo.ResponseResult;
 import com.ming.web.service.InterfaceInfoService;
 import com.ming.web.service.UserService;
 import com.ming.web.utils.BeanCopyUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
-import static com.ming.web.constant.RequestMethodConstant.*;
 
 @RestController
 @RequestMapping("/interfaceInfo")

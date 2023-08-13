@@ -13,11 +13,6 @@ public class AddInterfaceCountVO {
     /**
      * 要添加的次数
      */
-    private String addCount;
-
-    /**
-     * 用户密码
-     */
-    private String userPassword;
+    private Integer addCount;
 
 }

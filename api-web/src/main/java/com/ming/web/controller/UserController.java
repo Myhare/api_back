@@ -8,7 +8,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.PageDTO;
 import com.ming.apiCommon.model.entity.User;
 import com.ming.web.common.DeleteRequest;
 import com.ming.apiCommon.model.enums.ResultCodeEnum;
-import com.ming.web.constant.CommonConstant;
 import com.ming.web.exception.BusinessException;
 import com.ming.web.model.dto.user.*;
 import com.ming.apiCommon.model.vo.ResponseResult;
@@ -28,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.ming.apiCommon.constant.RequestHeaderConstant.TOKEN_HEADER;
 import static com.ming.web.constant.CommonConstant.SALT;
 
 /**
@@ -104,7 +104,7 @@ public class UserController {
      */
     @PostMapping("/logout")
     public ResponseResult<Boolean> userLogout(HttpServletRequest request) {
-        String token = request.getHeader(CommonConstant.TOKEN_HEADER);
+        String token = request.getHeader(TOKEN_HEADER);
         if (StringUtils.isBlank(token)) {
             return ResponseResult.ok(true);
         }

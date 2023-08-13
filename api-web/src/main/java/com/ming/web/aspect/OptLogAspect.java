@@ -1,6 +1,5 @@
 package com.ming.web.aspect;
 
-import com.alibaba.fastjson.JSON;
 import com.ming.apiCommon.model.enums.ResultCodeEnum;
 import com.ming.web.annotation.OptLog;
 import com.ming.web.exception.BusinessException;
@@ -12,7 +11,6 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;

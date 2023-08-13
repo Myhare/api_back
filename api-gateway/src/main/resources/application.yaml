@@ -18,13 +18,23 @@ spring:
         - id: api_route
           uri: http://0.0.0.0:8000 # 在过滤器中动态指定转发的地址，不需要这里写死
           predicates:
-            - Method=GET,POST,DELETE
-#            - Host=**.ybz.com  # 主机断言，之后改成自己的服务器
+            - Path=/api/interface/**
+            # - RemoteAddr=127.0.0.1  # 主机断言，之后改成自己的服务器
           filters:
             - name: BizLogicRoute # 指定局部过滤器
-          # 路由路径切割
-#          filters:
-#            - StripPrefix=1
+        # 订单服务
+        - id: api_order_route
+          uri: lb://api-order
+          predicates:
+            - Path=/api/order/**
+        # web服务
+        - id: api_backend
+          uri: lb://api-web
+          predicates:
+            - Path=/api/**
+          filters:
+            - StripPrefix=1
+
 
 logging:
   level:

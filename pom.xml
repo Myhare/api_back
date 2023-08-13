@@ -17,6 +17,7 @@
         <module>api-gateway</module>
         <module>api-interface</module>
         <module>api-client-sdk</module>
+        <module>api-order</module>
     </modules>
 
     <properties>
@@ -36,6 +37,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <!--lombok-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
         </dependency>
 
         <!--SpringBoot 测试的场景启动-->
