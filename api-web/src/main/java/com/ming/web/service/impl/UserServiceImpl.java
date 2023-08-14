@@ -139,19 +139,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (userCount > 0){
             throw new BusinessException(ResultCodeEnum.PARAMS_ERROR, "邮箱已经注册");
         }
-        // 设置邮件内容
-        // 生成随机数
-        String randomCode = CommonUtils.getRandomCode();
-        String content = "注册验证码是" + randomCode + "有效期为"+CODE_TIME+"分钟，如果不是你发送的请无视";
-        EmailSendDTO emailSendDTO = EmailSendDTO.builder()
-                .email(email)
-                .subject("OpenApi接口平台注册")
-                .content(content)
-                .build();
-        // 发送到rabbitMq消费者中
-        rabbitTemplate.convertAndSend(MQPrefixConst.EMAIL_EXCHANGE, "", emailSendDTO);
-        // 将随即数存入redis
-        redisService.set(API_REGISTER_CODE+email, randomCode, 60 * CODE_TIME);
+        synchronized (email.intern()){
+            // 获取令牌桶，一个邮箱60秒只能发送一次
+            TokenBucket tokenBucket = TokenBucket.getEmailTokenBucket(email);
+            // 判断令牌是否足够
+            if (!tokenBucket.tryConsume()) {
+                throw new BusinessException(ResultCodeEnum.FORBIDDEN_ERROR, "请求频繁");
+            }
+            // 设置邮件内容
+            // 生成随机数
+            String randomCode = CommonUtils.getRandomCode();
+            String content = "注册验证码是" + randomCode + "有效期为"+CODE_TIME+"分钟，如果不是你发送的请无视";
+            EmailSendDTO emailSendDTO = EmailSendDTO.builder()
+                    .email(email)
+                    .subject("OpenApi接口平台注册")
+                    .content(content)
+                    .build();
+            // 发送到rabbitMq消费者中
+            rabbitTemplate.convertAndSend(MQPrefixConst.EMAIL_EXCHANGE, "", emailSendDTO);
+            // 将随即数存入redis
+            redisService.set(API_REGISTER_CODE+email, randomCode, 60 * CODE_TIME);
+        }
     }
 
     // 用户登录

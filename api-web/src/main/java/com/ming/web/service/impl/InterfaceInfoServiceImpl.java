@@ -47,13 +47,8 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
     private InterfaceInfoMapper interfaceInfoMapper;
 
     @Resource
-    private InvokeCountMapper invokeCountMapper;
-
-    @Resource
     private InterfaceChargingMapper interfaceChargingMapper;
 
-    @Resource
-    private RedisService redisService;
 
     @Value("${web.backend}")
     private String local;
@@ -131,23 +126,6 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
         if (!responseDetection(response)){
             throw new BusinessException(ResultCodeEnum.SYSTEM_ERROR, "接口验证失败，接口请求出现问题");
         }
-    }
-
-    /**
-     * 每天获取一次接口调用次数存到数据库中
-     * 每天执行一次
-     */
-    @Scheduled(cron = "0 0 0 * * ?")
-    public void saveUniqueView(){
-        Object invokeCountObject = redisService.get(RedisPrefixConst.INVOKE_DATE_COUNT);
-        String invokeCountStr = Optional.ofNullable(invokeCountObject).orElse(0).toString();
-
-        // 将当天的接口调用次数存到数据库中
-        InvokeCount invokeCount = InvokeCount.builder()
-                .createTime(DateUtil.yesterday())
-                .invokeCount(invokeCountStr)
-                .build();
-        invokeCountMapper.insert(invokeCount);
     }
 
 }
