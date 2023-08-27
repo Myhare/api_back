@@ -29,7 +29,7 @@ public class InterfaceChargingController {
     /**
      * 分页查询接口计费
      */
-    @AuthCheck(mustRole = "admin")
+    @AuthCheck(anyRole = {"admin", "test"})
     @GetMapping("/list")
     public ResponseResult<PageResult<ChargingInfoDTO>> list(QueryInfoVO queryInfoVO){
         return ResponseResult.ok(interfaceChargingService.listInterfaceCharging(queryInfoVO));

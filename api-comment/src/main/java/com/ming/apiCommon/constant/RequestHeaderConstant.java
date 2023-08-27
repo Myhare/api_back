@@ -29,5 +29,9 @@ public class RequestHeaderConstant {
      * 请求头token的key
      */
     public static final String TOKEN_HEADER = "token";
+    /**
+     * 随机值
+     */
+    public static final String NONCE = "nonce";
 
 }

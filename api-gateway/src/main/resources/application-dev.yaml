@@ -1,0 +1,50 @@
+spring:
+  cloud:
+    nacos:
+      server-addr: 127.0.0.1
+      discovery:
+        username: nacos
+        password: nacos
+        namespace: public
+    gateway:
+      default-filters:  # 默认过滤器
+        - AddRequestHeader=source, 1940307627 # 过滤器，添加一个请求头 source: apiOpen(流量染色)
+      routes:
+        - id: api_route
+          uri: http://0.0.0.0:8000 # 在过滤器中动态指定转发的地址，不需要这里写死
+          predicates:
+            - Path=/api/interface/**
+            # - RemoteAddr=127.0.0.1  # 主机断言，之后改成自己的服务器
+          filters:
+            - name: BizLogicRoute # 指定局部过滤器
+        # 订单服务
+        - id: api_order_route
+          uri: lb://api-order
+          predicates:
+            - Path=/api/order/**
+        # web服务
+        - id: api_backend
+          uri: lb://api-web
+          predicates:
+            - Path=/api/**
+          filters:
+            - StripPrefix=1
+
+
+logging:
+  level:
+    org:
+      springframework:
+        cloud:
+          gateway: trace
+
+dubbo:
+  application:
+    name: dubbo-springboot-demo-provider # 应用名称
+  protocol:
+    name: dubbo
+    port: -1
+  registry:
+    id: nacos-registry
+    address: nacos://localhost:8848
+

@@ -2,6 +2,7 @@ package com.ming.web.service.impl;
 
 
 import com.ming.apiCommon.dubbo.RedisService;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.Distance;
@@ -40,6 +41,16 @@ public class RedisServiceImpl implements RedisService {
     @Override
     public void set(String key, Object value) {
         redisTemplate.opsForValue().set(key, value);
+    }
+
+    @Override
+    public Boolean setIfAbsent(String key, Object value) {
+        return redisTemplate.opsForValue().setIfAbsent(key, value);
+    }
+
+    @Override
+    public Boolean setIfAbsent(String key, Object value, Integer timeout, TimeUnit unit) {
+        return redisTemplate.opsForValue().setIfAbsent(key, value, timeout, unit);
     }
 
     @Override

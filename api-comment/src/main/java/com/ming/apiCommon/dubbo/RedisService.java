@@ -9,6 +9,7 @@ import org.springframework.data.redis.connection.RedisGeoCommands;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * redis操作
@@ -32,6 +33,24 @@ public interface RedisService {
      * @param value value值
      */
     void set(String key, Object value);
+
+    /**
+     * 如果不存在就放入
+     * @param key
+     * @param value
+     * @return
+     */
+    Boolean setIfAbsent(String key, Object value);
+
+    /**
+     * 如果不存在就放入
+     * @param key
+     * @param value
+     * @param 超时时间
+     * @param 超时单位
+     * @return
+     */
+    Boolean setIfAbsent(String key, Object value, Integer timeout, TimeUnit unit);
 
     /**
      * 获取属性

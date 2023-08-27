@@ -95,7 +95,7 @@ public class OpenApiClient {
         hashMap.put("accessKey", accessKey);
         // 一定不能直接发送
         // hashMap.put("secretKey", secretKey);
-        hashMap.put("nonce", RandomUtil.randomNumbers(4));  // 随机数防止请求重放，随机数只能用一次
+        hashMap.put("nonce", RandomUtil.randomNumbers(6));  // 随机数防止请求重放，随机数只能用一次
         hashMap.put("body", encryptBody);  // 传递请求体，用来加密使用
         hashMap.put("method", method);  // 传递请求体，用来加密使用
         hashMap.put("timestamp", String.valueOf(System.currentTimeMillis() / 1000));

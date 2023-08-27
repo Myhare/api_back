@@ -1,0 +1,9 @@
+# FROM java:8
+FROM openjdk:8
+EXPOSE 8081
+
+CMD ["--server.port=8081"]
+
+ADD *.jar /app.jar
+
+ENTRYPOINT ["java","-jar","/app.jar"]

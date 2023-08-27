@@ -1,0 +1,63 @@
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/api_order
+    username: root
+    password: 123456
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+        username: nacos
+        password: nacos
+        namespace: public
+    alibaba:
+      seata:
+        tx-service-group: beiJing #配置事务分组
+  # rabbitMQ消息队列
+  rabbitmq:
+    host: www.mingzib.xyz
+    port: 5673
+    username: admin
+    password: 1940307627
+    listener:
+      simple:
+        # 手动确认消息
+        acknowledge-mode: manual
+# seata分布式事务
+seata:
+  registry:
+    # 配置seata的注册中心， 告诉seata client 怎么去访问seata server(TC)
+    type: nacos
+    nacos:
+      server-addr: 127.0.0.1:8848  # seata server 所在的nacos服务地址
+      application: seata-server    # seata server 的服务名seata-server ，如果没有修改可以不配
+      username: nacos
+      password: nacos
+      group: SEATA_GROUP          # seata server 所在的组，默认就是SEATA_GROUP，没有改也可以不配
+  # 读取nacos中的配置
+  config:
+    type: nacos
+    nacos:
+      server-addr: 127.0.0.1:8848
+      username: nacos
+      password: nacos
+      group: SEATA_GROUP
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+dubbo:
+  application:
+    name: dubbo-springboot-demo-provider
+  protocol:
+    name: dubbo
+    port: -1
+  registry:
+    id: nacos-registry
+    address: nacos://localhost:8848

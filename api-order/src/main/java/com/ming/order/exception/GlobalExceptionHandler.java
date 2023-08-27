@@ -24,6 +24,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseResult<?> runtimeExceptionHandler(RuntimeException e) {
         log.error("runtimeException", e);
-        return ResponseResult.fail(ResultCodeEnum.SYSTEM_ERROR.getMessage(), e.getMessage());
+        return ResponseResult.fail(ResultCodeEnum.SYSTEM_ERROR.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseResult<?> exceptionHandler(Exception e) {
+        log.error("runtimeException", e);
+        return ResponseResult.fail(ResultCodeEnum.SYSTEM_ERROR.getMessage());
     }
 }

@@ -34,6 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 接口全局过滤器
@@ -63,7 +64,7 @@ public class InterfaceGlobalFilter implements GlobalFilter, Ordered {
     /**
      * 白名单临时测试列表
      */
-    private static final List<String> IP_WHITE_LIST = Arrays.asList("127.0.0.1");
+    // private static final List<String> IP_WHITE_LIST = Arrays.asList("127.0.0.1");
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -89,12 +90,19 @@ public class InterfaceGlobalFilter implements GlobalFilter, Ordered {
         log.info("请求来源地址：" + sourceAddress);
         log.info("请求来源地址：" + request.getRemoteAddress());
         // TODO 白名单用户鉴权 改成黑名单拒绝访问
-        if (!IP_WHITE_LIST.contains(sourceAddress)){
-            return handleNoAuth(response, "");
-        }
+        // if (!IP_WHITE_LIST.contains(sourceAddress)){
+        //     return handleNoAuth(response, "");
+        // }
         // 角色鉴权
         HttpHeaders headers = request.getHeaders();
         String accessKey = headers.getFirst(RequestHeaderConstant.ACCESS_KEY);
+        // 获取随机数防重放
+        String nonce = headers.getFirst(RequestHeaderConstant.NONCE);
+        Boolean nonceSuccess = redisService.setIfAbsent(nonce, "1", 3, TimeUnit.MINUTES);
+        if (!nonceSuccess){
+            log.error("有重放请求");
+            return handleNoAuth(response, "请求重复");
+        }
         // 通过ak获取用户
         // 从数据库中查询sk，鉴权使用
         User user = null;

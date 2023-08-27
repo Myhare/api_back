@@ -1,0 +1,21 @@
+version: '2.1'
+services:
+  nacos:
+    image: nacos/nacos-server:v2.1.1
+    container_name: nacos-2.1.1
+    environment:
+      - PREFER_HOST_MODE=ip
+      - MODE=standalone # 单机模式
+    # 卷挂载
+    volumes:
+      - ./standalone-logs/:/home/nacos/logs
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+      - "9849:9849"
+    restart: always
+  seata-server:
+    image: seataio/seata-server:${latest-release-version}
+    ports:
+      - "7091:7091"
+      - "8091:8091"

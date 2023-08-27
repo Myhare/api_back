@@ -114,7 +114,7 @@ public class InterfaceController {
     /**
      * 获取接口列表
      */
-    @AuthCheck(mustRole = "admin")
+    @AuthCheck(anyRole = {"admin", "test"})
     @GetMapping("/list")
     public ResponseResult<List<InterfaceInfoVO>> listInterface(){
         List<InterfaceInfo> list = interfaceInfoService.list();
