@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ming.web.mapper.InvokeCountMapper">
+
+    <resultMap id="BaseResultMap" type="com.ming.web.model.entity.InvokeCount">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="invokeCount" column="invoke_count" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,invoke_count,create_time,
+        update_time
+    </sql>
+    <!--获取最近7天接口调用次数-->
+    <select id="getInvokeCountDTO" resultType="com.ming.web.model.dto.statistics.DataInvokeStatisticsDTO">
+        select
+            DATE_FORMAT(create_time,"%Y-%m-%d") date,
+            invoke_count count
+        from invoke_count
+        where create_time &gt; #{startDate}
+          and create_time &lt;= #{endDate}
+        order by
+            create_time;
+    </select>
+</mapper>
